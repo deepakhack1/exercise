@@ -1,20 +1,22 @@
 package com.domain.exercise.service;
 
-import com.domain.exercise.entity.EmployeeEnity;
+import com.domain.exercise.entity.EmployeeEntity;
 import com.domain.exercise.model.Employee;
 
 import java.util.Optional;
 
 public interface EventStoreService {
 
-    Optional<EmployeeEnity> verifyEmployeeEntry(int id);
+    Optional<EmployeeEntity> verifyEmployeeEntry(int id);
 
     void empEntry(Employee employee);
 
-   Optional<EmployeeEnity> isEmployeeEntered(int id);
+   Optional<EmployeeEntity> isEmployeeEntered(int id);
 
-    void enterExitTime(EmployeeEnity employee);
+    void enterExitTime(EmployeeEntity employee);
 
-    void empEntryAfterFirstTime(EmployeeEnity employee);
+    void empEntryAfterFirstTime(EmployeeEntity employee);
+
+    double calculateAttendance(int empId);
 
 }

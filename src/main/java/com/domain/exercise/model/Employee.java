@@ -1,8 +1,12 @@
 package com.domain.exercise.model;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Employee {
 
     private int empId;

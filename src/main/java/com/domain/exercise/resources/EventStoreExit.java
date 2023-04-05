@@ -1,6 +1,6 @@
 package com.domain.exercise.resources;
 
-import com.domain.exercise.entity.EmployeeEnity;
+import com.domain.exercise.entity.EmployeeEntity;
 import com.domain.exercise.model.Employee;
 import com.domain.exercise.service.EventStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class EventStoreExit {
     @PostMapping("/out")
     public ResponseEntity exit(@RequestBody Employee employee) {
 
-        Optional<EmployeeEnity> employeeEntered = eventStoreService.isEmployeeEntered(employee.getEmpId());
+        Optional<EmployeeEntity> employeeEntered = eventStoreService.isEmployeeEntered(employee.getEmpId());
 
         if (employeeEntered.isPresent()) {
             if (employeeEntered.get().isPresent()) {

@@ -5,16 +5,14 @@ import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-@Entity(name = "Employee")
+@Entity(name = "EmployeeEntity")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class EmployeeEnity {
+public class EmployeeEntity {
     @Id
     @NonNull
     private int id;
