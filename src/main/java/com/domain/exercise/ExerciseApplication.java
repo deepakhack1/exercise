@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 @SpringBootApplication
 public class ExerciseApplication {
-
+// test commit
 	public static void main(String[] args) {
 
 		SpringApplication.run(ExerciseApplication.class, args);
