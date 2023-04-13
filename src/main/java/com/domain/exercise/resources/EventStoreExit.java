@@ -6,10 +6,7 @@ import com.domain.exercise.service.EventStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -21,9 +18,9 @@ public class EventStoreExit {
     EventStoreService eventStoreService;
 
     @PostMapping("/out")
-    public ResponseEntity exit(@RequestBody Employee employee) {
+    public ResponseEntity exit(@RequestParam int  empId) {
 
-        Optional<EmployeeEntity> employeeEntered = eventStoreService.isEmployeeEntered(employee.getEmpId());
+        Optional<EmployeeEntity> employeeEntered = eventStoreService.isEmployeeEntered(empId);
 
         if (employeeEntered.isPresent()) {
             if (employeeEntered.get().isPresent()) {

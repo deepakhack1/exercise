@@ -16,7 +16,6 @@ import java.util.Optional;
 @RequestMapping("/eventStore/api")
 public class EventStoreEntry {
 
-
     @Autowired
     EventStoreService eventStoreService;
 
@@ -38,13 +37,9 @@ public class EventStoreEntry {
 
     }
 
-
     @GetMapping("/calculate-attendance/{empId}")
-    public ResponseEntity calcAttendance(@PathVariable int empId){
-
+    public ResponseEntity calculateAttendance(@PathVariable int empId){
          double attendanceInMinutes = eventStoreService.calculateAttendance(empId);
          return ResponseEntity.status(HttpStatus.OK).body(attendanceInMinutes);
     }
-
-
 }
