@@ -28,7 +28,6 @@ public class KafkaProducer {
 
     public void sendMessage(KafkaPayload kafkaPayload) {
 
-//        log.info(String.format("Message sent -> %s", kafkaPayload.toString()));
         String message = null;
         try {
             message = convertStringToEmployee(kafkaPayload);
