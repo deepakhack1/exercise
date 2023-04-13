@@ -19,6 +19,6 @@ public class EmployeeEntity {
     private String name;
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
-    private boolean isPresent;
+    private boolean isAlreadyEntered;
 
 }

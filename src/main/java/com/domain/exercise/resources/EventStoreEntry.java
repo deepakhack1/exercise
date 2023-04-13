@@ -22,15 +22,16 @@ public class EventStoreEntry {
     @PostMapping("/in")
     public ResponseEntity entry(@RequestBody Employee employee) {
         Optional<EmployeeEntity> employeeEnity = eventStoreService.verifyEmployeeEntry(employee.getEmpId());
-
+        // logic to check either employee entered in store for today
         if (employeeEnity.isPresent() && (employeeEnity.get().getEntryTime().getDayOfMonth()==LocalDateTime.now().getDayOfMonth())){
-            if (!employeeEnity.get().isPresent()) {
-                eventStoreService.empEntryAfterFirstTime(employeeEnity.get());
-            } else {
+            if (employeeEnity.get().isAlreadyEntered()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Already entered need to exit first");
+            } else {
+                eventStoreService.empEntryAfterFirstTime(employeeEnity.get());
             }
 
         } else {
+            // employee enter in store first time in a day
             eventStoreService.empEntry(employee);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Entered Successfully");

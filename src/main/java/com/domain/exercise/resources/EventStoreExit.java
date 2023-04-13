@@ -1,7 +1,6 @@
 package com.domain.exercise.resources;
 
 import com.domain.exercise.entity.EmployeeEntity;
-import com.domain.exercise.model.Employee;
 import com.domain.exercise.service.EventStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ public class EventStoreExit {
         Optional<EmployeeEntity> employeeEntered = eventStoreService.isEmployeeEntered(empId);
 
         if (employeeEntered.isPresent()) {
-            if (employeeEntered.get().isPresent()) {
+            if (employeeEntered.get().isAlreadyEntered()) {
                 eventStoreService.enterExitTime(employeeEntered.get());
             }else {
                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Employee is not entered");

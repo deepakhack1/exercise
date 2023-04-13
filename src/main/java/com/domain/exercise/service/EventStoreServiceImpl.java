@@ -36,7 +36,7 @@ public class EventStoreServiceImpl implements EventStoreService {
     @Override
     public void enterExitTime(EmployeeEntity employee) {
         EmployeeEntity employeeEntity = EmployeeEntity.builder()
-                .isPresent(false)
+                .isAlreadyEntered(false)
                 .exitTime(LocalDateTime.now())
                 .id(employee.getId())
                 .name(employee.getName())
@@ -47,12 +47,11 @@ public class EventStoreServiceImpl implements EventStoreService {
 
     @Override
     public void empEntryAfterFirstTime(EmployeeEntity employee) {
-        //Optional<EmployeeEnity> byId = eventStoreRepository.findById(employee.getEmpId());
         EmployeeEntity employeeEntity = EmployeeEntity.builder()
                 .id(employee.getId())
                 .entryTime(employee.getEntryTime())
                 .name(employee.getName())
-                .isPresent(true)
+                .isAlreadyEntered(true)
                 .build();
         eventStoreRepository.save(employeeEntity);
     }
@@ -65,18 +64,17 @@ public class EventStoreServiceImpl implements EventStoreService {
         double minutes = Duration.between(entryTime, exitTime).toMinutes();
         double hour = minutes/60.0D;
         KafkaPayload kafkaPayload = KafkaPayload.builder()
-                        .attendance(hour)
-                                .empId(employeeEntity.getId())
-                                        .name(employeeEntity.getName()).build();
+                 .attendance(hour)
+                 .empId(employeeEntity.getId())
+                 .name(employeeEntity.getName()).build();
         kafkaProducer.sendMessage(kafkaPayload );
         return hour;
     }
 
     @Override
     public void empEntry(Employee employee) {
-        Optional<EmployeeEntity> byId = eventStoreRepository.findById(employee.getEmpId());
         EmployeeEntity employeeEntity = EmployeeEntity.builder()
-                .isPresent(true)
+                .isAlreadyEntered(true)
                 .name(employee.getEmpName())
                 .entryTime(LocalDateTime.now())
                 .id(employee.getEmpId())
