@@ -16,7 +16,7 @@ public class EventStoreExit {
     @Autowired
     EventStoreService eventStoreService;
 
-    @PostMapping("/out")
+    @GetMapping("/out")
     public ResponseEntity exit(@RequestParam int  empId) {
 
         Optional<EmployeeEntity> employeeEntered = eventStoreService.isEmployeeEntered(empId);

@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,9 +35,7 @@ public class TestEventStoreEntry {
     EventStoreEntry eventStoreEntry;
     @Mock
     EventStoreService eventStoreService;
-
     private MockMvc mockMvc;
-
     Optional<EmployeeEntity> optionalEmployeeEntity;
 
     @BeforeEach
@@ -49,7 +46,6 @@ public class TestEventStoreEntry {
     @Test
     public void testReEntryOfEmplInSameDay() throws Exception {
         optionalEmployeeEntity = Optional.of(EmployeeEntity.builder()
-                .isAlreadyEntered(true)
                 .name("shiva")
                 .id(147)
                 .entryTime(LocalDateTime.now())
@@ -71,7 +67,6 @@ public class TestEventStoreEntry {
     @Test
     public void testFirstEntryInADay() throws Exception {
         optionalEmployeeEntity = Optional.of(EmployeeEntity.builder()
-                .isAlreadyEntered(true)
                 .name("shiva")
                 .id(147)
                 .entryTime(LocalDateTime.now().minusDays(3))
@@ -88,6 +83,27 @@ public class TestEventStoreEntry {
         verify(eventStoreService,times(1)).verifyEmployeeEntry(anyInt());
         verify(eventStoreService,times(0)).empEntryAfterFirstTime(any(EmployeeEntity.class));
         verify(eventStoreService,times(1)).empEntry(any(Employee.class));
+    }
+
+    @Test
+    void testreentryWhenAlreadyEntered() throws Exception {
+        optionalEmployeeEntity = Optional.of(EmployeeEntity.builder()
+                .name("shiva")
+                .id(147)
+                .entryTime(LocalDateTime.now())
+                .isAlreadyEntered(true)
+                .build());
+        when(eventStoreService.verifyEmployeeEntry(anyInt())).thenReturn(optionalEmployeeEntity);
+        doNothing().when(eventStoreService).empEntryAfterFirstTime(any(EmployeeEntity.class));
+        MvcResult result  = this.mockMvc.perform(post("/eventStore/api/in")
+                 .contentType(MediaType.APPLICATION_JSON)
+                 .content(getJsonString(new Employee(147,"shiva")))
+                 .accept(MediaType.APPLICATION_JSON))
+                 .andExpect(status().isForbidden()).andReturn();
+        assertNotNull(result.getResponse());
+        verify(eventStoreService,times(1)).verifyEmployeeEntry(anyInt());
+        verify(eventStoreService,times(0)).empEntryAfterFirstTime(any(EmployeeEntity.class));
+        verify(eventStoreService,times(0)).empEntry(any(Employee.class));
     }
 
     private String getJsonString(Employee employee) throws JsonProcessingException {
