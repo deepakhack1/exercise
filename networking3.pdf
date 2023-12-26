@@ -1,0 +1,131 @@
+We can do by Command prompt
+
+ChatServer.java
+
+import java.io.*;
+import java.net.*;
+
+public class ChatServer {
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java ChatServer <port>");
+            return;
+        }
+
+        int port = Integer.parseInt(args[0]);
+
+        try {
+            ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println("Server started. Waiting for clients on port " + port + "...");
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New client connected: " + clientSocket);
+
+                ClientHandler clientThread = new ClientHandler(clientSocket);
+                new Thread(clientThread).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+class ClientHandler implements Runnable {
+      private final Socket clientSocket;
+    private final BufferedReader reader;
+    private final PrintWriter writer;
+
+    public ClientHandler(Socket socket) throws IOException {
+        this.clientSocket = socket;
+        this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        this.writer = new PrintWriter(clientSocket.getOutputStream(), true);
+    }
+
+    public void run() {
+        try {
+            String message;
+            while ((message = reader.readLine()) != null) {
+                System.out.println("Received message from client: " + message);
+                if (message.equalsIgnoreCase("\\q")) {
+                    break;
+                }
+                ChatServer.broadcastMessage(message, this);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ChatServer.removeClient(this);
+        }
+    }
+
+    public void sendMessage(String message) {
+        writer.println(message);
+    }
+}
+
+
+
+ChatClient.java
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+public class ChatClient {
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.out.println("Usage: java ChatClient <serverIP> <port>");
+            return;
+        }
+
+        String serverIP = args[0];
+        int port = Integer.parseInt(args[1]);
+
+        try {
+            Socket socket = new Socket(serverIP, port);
+            System.out.println("Connected to server.");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            Scanner scanner = new Scanner(System.in);
+
+            Thread receiveThread = new Thread(() -> {
+                String message;
+                try {
+                    while ((message = reader.readLine()) != null) {
+                        System.out.println("Received from server: " + message);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            receiveThread.start();
+
+            String userInput;
+            while (!(userInput = scanner.nextLine()).equalsIgnoreCase("\\q")) {
+                writer.println(userInput);
+            }
+
+            writer.println("\\q"); // Send termination signal to the server
+            receiveThread.interrupt();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+To run the ChatServer from the command line, use:
+
+php
+Copy code
+java ChatServer <port>
+And for the ChatClient:
+
+php
+Copy code
+java ChatClient <serverIP> <port>
+These codes set up the server to listen on a specified port provided via the command line, and clients can connect by specifying the server's IP address and the port to connect to.

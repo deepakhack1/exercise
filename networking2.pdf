@@ -1,0 +1,108 @@
+we can use a properties file to store the server IP and port:
+
+server.properties
+
+server.ip=127.0.0.1
+server.port=5000
+
+
+For the Server (ChatServer.java):
+
+import java.io.*;
+import java.net.*;
+import java.util.Properties;
+
+public class ChatServer {
+    public static void main(String[] args) {
+        try {
+            Properties properties = new Properties();
+            FileInputStream fileInputStream = new FileInputStream("server.properties");
+            properties.load(fileInputStream);
+
+            String serverIP = properties.getProperty("server.ip");
+            int port = Integer.parseInt(properties.getProperty("server.port"));
+
+            ServerSocket serverSocket = new ServerSocket(port);
+            System.out.println("Server started. Waiting for clients on port " + port + "...");
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("New client connected: " + clientSocket);
+
+                ClientHandler clientThread = new ClientHandler(clientSocket);
+                new Thread(clientThread).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+For the Client (ChatClient.java):
+
+import java.io.*;
+import java.net.*;
+import java.util.Properties;
+import java.util.Scanner;
+
+public class ChatClient {
+    public static void main(String[] args) {
+        try {
+            Properties properties = new Properties();
+            FileInputStream fileInputStream = new FileInputStream("client.properties");
+            properties.load(fileInputStream);
+
+            String serverIP = properties.getProperty("server.ip");
+            int port = Integer.parseInt(properties.getProperty("server.port"));
+
+            Socket socket = new Socket(serverIP, port);
+            System.out.println("Connected to server.");
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            Scanner scanner = new Scanner(System.in);
+
+            // Thread for sending messages to the server
+            Thread messageSender = new Thread(() -> {
+                try {
+                    while (true) {
+                        System.out.print("Client: ");
+                        String message = scanner.nextLine();
+                        writer.println(message); // Sending the message to the server
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            messageSender.start();
+
+            // Thread for receiving messages from the server
+            Thread messageReceiver = new Thread(() -> {
+                try {
+                    while (true) {
+                        String serverMessage = reader.readLine(); // Reading message from the server
+                        System.out.println("Server: " + serverMessage);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            messageReceiver.start();
+
+            // This loop ensures the main thread doesn't exit
+            while (true) {
+                // You can add additional logic here if needed
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+client.properties
+
+server.ip=127.0.0.1
+server.port=5000
